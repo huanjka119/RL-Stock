@@ -26,7 +26,7 @@ class StockTradingEnv(gym.Env):
 
         self.df = df
         self.reward_range = (0, MAX_ACCOUNT_BALANCE)
-
+#第二步 定义行为空间 增大、减少、保持；amount，这个和现有的一致
         # Actions of the format Buy x%, Sell x%, Hold, etc.
         self.action_space = spaces.Box(
             low=np.array([0, 0]), high=np.array([3, 1]), dtype=np.float16)
@@ -34,7 +34,7 @@ class StockTradingEnv(gym.Env):
         # Prices contains the OHCL values for the last five prices
         self.observation_space = spaces.Box(
             low=0, high=1, shape=(19,), dtype=np.float16)   # shape 的数量，就是_next_observation中引入观测参数的个数。
-
+#第一步 观察盾构的速度、气压、当前螺旋机转速
     def _next_observation(self):
         obs = np.array([
             self.df.loc[self.current_step, 'open'] / MAX_SHARE_PRICE,
@@ -58,7 +58,7 @@ class StockTradingEnv(gym.Env):
             self.total_sales_value / (MAX_NUM_SHARES * MAX_SHARE_PRICE),
         ])
         return obs
-
+#第三步 采取行动 当前推进速度在最大、最小之间。→采取行动 ：若增大，则螺旋机速度增大；若减小，则螺旋机速度减小。
     def _take_action(self, action):
         # Set the current price to a random price within the time step
         current_price = random.uniform(
@@ -94,7 +94,7 @@ class StockTradingEnv(gym.Env):
 
         if self.shares_held == 0:
             self.cost_basis = 0
-
+#第四步 采取行动 奖励函数 与实际人工操作的数值相减
     def step(self, action):
         # Execute one time step within the environment
         self._take_action(action)
@@ -103,17 +103,17 @@ class StockTradingEnv(gym.Env):
         self.current_step += 1
 
         if self.current_step > len(self.df.loc[:, 'open'].values) - 1:
-            self.current_step = 0  # loop training
-            # done = True
+            self.current_step = 0  # loop training 循环训练？
+            # done = True  #不循环，终止训练
 
-        delay_modifier = (self.current_step / MAX_STEPS)
+        delay_modifier = (self.current_step / MAX_STEPS) #这个的作用？
 
         # profits
         reward = self.net_worth - INITIAL_ACCOUNT_BALANCE
         reward = 1 if reward > 0 else -100
 
         if self.net_worth <= 0:
-            done = True
+            done = True    #若训练结果差，直接淘汰
 
         obs = self._next_observation()
 
