@@ -14,7 +14,7 @@ MAX_OPEN_POSITIONS = 5           #最大开盘位置？
 MAX_STEPS = 20000                #最大步数
 MAX_DAY_CHANGE = 1               #最大时间跨度
 
-INITIAL_ACCOUNT_BALANCE = 10000  #初始账户盈余
+INITIAL_ACCOUNT_BALANCE = 10000
 
 
 class StockTradingEnv(gym.Env):
